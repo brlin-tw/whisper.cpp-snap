@@ -62,6 +62,7 @@
 *.bmp
 *.jpg
 *.png
+!/snap/gui/*.png
 
 # Don't track common export formats from Markdown
 *.doc?
