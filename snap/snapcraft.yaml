@@ -1,0 +1,140 @@
+# Snapcraft Recipe for whisper.cpp
+# Copyright 2024 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# SPDX-License-Identifier: MIT
+name: whisper-cpp
+title: whisper.cpp
+summary: Port of OpenAI's Whisper model in C/C++
+description: |-
+  **Packager-specific information**
+
+  This is NOT an official distribution of VRRTest, please file any issue
+  regarding the usage of this snap to the snap's own issue tracker:
+
+      Issues · 林博仁 Buo-ren, Lin / Unofficial snap packaging for whisper.cpp · GitLab
+      https://gitlab.com/brlin/whisper.cpp-snap/-/issues
+
+  Refer to the upstream project website for more info about this application:
+
+      ggerganov/whisper.cpp: Port of OpenAI's Whisper model in C/C++
+      https://github.com/ggerganov/whisper.cpp
+
+  **Upstream information**
+
+  High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
+
+  * Plain C/C++ implementation without dependencies
+  * Apple Silicon first-class citizen - optimized via ARM NEON, Accelerate framework, Metal and [Core ML](https://github.com/ggerganov/whisper.cpp#core-ml-support)
+  * AVX intrinsics support for x86 architectures
+  * VSX intrinsics support for POWER architectures
+  * Mixed F16 / F32 precision
+  * [4-bit and 5-bit integer quantization support](https://github.com/ggerganov/whisper.cpp#quantization)
+  * Zero memory allocations at runtime
+  * Support for CPU-only inference
+  * [Efficient GPU support for NVIDIA](https://github.com/ggerganov/whisper.cpp#nvidia-gpu-support-via-cublas)
+  * [OpenVINO Support](https://github.com/ggerganov/whisper.cpp#openvino-support)
+  * [C-style API](https://github.com/ggerganov/whisper.cpp/blob/master/whisper.h)
+icon: snap/gui/placeholder-icon.png
+license: MIT
+contact: https://gitlab.com/brlin/whisper.cpp-snap/-/issues
+issues: https://gitlab.com/brlin/whisper.cpp-snap/-/issues
+source-code: https://gitlab.com/brlin/whisper.cpp-snap
+website: https://gitlab.com/brlin/whisper.cpp-snap
+
+base: core22
+adopt-info: main
+grade: stable
+confinement: strict
+compression: lzo
+
+parts:
+  main:
+    source: https://github.com/ggerganov/whisper.cpp.git
+    plugin: cmake
+    cmake-parameters:
+      # Doesn't work :(
+      #- -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL}
+      #- -DCMAKE_INSTALL_BINDIR=bin
+      #- -DCMAKE_INSTALL_LIBDIR=lib
+      #- -DCMAKE_BINARY_DIR="${CRAFT_PART_INSTALL}/usr/local"
+
+      # The server example will fail if enabled
+      - -DWHISPER_FFMPEG=OFF
+
+      # This snap is meant for the baseline x86_64 ABI for greatest
+      # compatibility
+      - -DWHISPER_NO_AVX=ON
+      - -DWHISPER_NO_AVX2=ON
+      - -DWHISPER_NO_AVX512=ON
+      - -DWHISPER_NO_AVX512_VBMI=ON
+      - -DWHISPER_NO_AVX512_VNNI=ON
+      - -DWHISPER_NO_F16C=ON
+      - -DWHISPER_NO_FMA=ON
+    build-packages:
+      - pkg-config
+      #- libavcodec-dev
+      #- libavdevice-dev
+      #- libavformat-dev
+      #- libswresample-dev
+      #- libavutil-dev
+      #- libpostproc-dev
+
+      # selective-checkout dependencies
+      - curl
+      - jq
+      - sed
+      - git
+    override-pull: |
+      set -o nounset
+
+      if ! craftctl default; then
+          printf \
+            'Error: Unable to run the default action of this step.\n' \
+            1>&2
+            exit 2
+      fi
+
+      project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR}"}"
+      selective_checkout_opts=(
+          --append-packaging-revision
+      )
+      if ! "${project_dir}/snap/local/scriptlets/selective-checkout" "${selective_checkout_opts[@]}"; then
+          printf \
+              'Error: Unable to run the selective-checkout scriptlet.\n' \
+              1>&2
+              exit 2
+      fi
+    override-build: |
+      set -o nounset
+
+      if ! craftctl default; then
+          printf \
+              'Error: Unable to run the default action of this step.\n' \
+              1>&2
+              exit 2
+      fi
+
+      # The example binaries won't be installed by CMake for some reason...
+      cp_opts=(
+          --archive
+          --verbose
+      )
+      if ! cp "${cp_opts[@]}" \
+          "${CRAFT_PART_BUILD}/bin" \
+          "${CRAFT_PART_INSTALL}/bin"; then
+          printf \
+              'Error: Unable to install the built executables.\n' \
+              1>&2
+          exit 2
+      fi
+    organize:
+      usr/local/lib/: lib/
+    prime:
+      # Development files
+      - -usr/local/include
+apps:
+  main:
+    command: bin/main
+    plugs:
+      # For accessing models
+      - home
+      - removable-media
