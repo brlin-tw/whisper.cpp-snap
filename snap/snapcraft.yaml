@@ -7,7 +7,7 @@ summary: Port of OpenAI's Whisper model in C/C++
 description: |-
   **Packager-specific information**
 
-  This is NOT an official distribution of VRRTest, please file any issue
+  This is NOT an official distribution of whisper.cpp, please file any issue
   regarding the usage of this snap to the snap's own issue tracker:
 
       Issues · 林博仁 Buo-ren, Lin / Unofficial snap packaging for whisper.cpp · GitLab
