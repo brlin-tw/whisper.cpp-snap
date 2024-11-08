@@ -83,6 +83,8 @@ parts:
       - jq
       - sed
       - git
+    stage-packages:
+      - libgomp1
     override-pull: |
       set -o nounset
 
