@@ -126,7 +126,7 @@ parts:
     override-build: "${CRAFT_PROJECT_DIR}/snap/local/scriptlets/main-override-build"
     prime:
       # Development files
-      - -usr/local/include
+      - -include
 apps:
   cli:
     command: bin/whisper-cli
