@@ -68,6 +68,9 @@ parts:
       - -DGGML_AVX512_VNNI=OFF
       - -DGGML_F16C=OFF
       - -DGGML_FMA=OFF
+
+      # Build artifact caching is not applicable in snap packaging
+      - -DGGML_CCACHE=OFF
     build-packages:
       - pkg-config
       #- libavcodec-dev
