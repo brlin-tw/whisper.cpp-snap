@@ -86,6 +86,9 @@ parts:
       - sed
       - git
     stage-packages:
+      # For download scripts, bash is not needed as it is available in the base snap
+      - curl
+
       - libgomp1
     override-pull: |
       set -o nounset
@@ -107,6 +110,7 @@ parts:
               1>&2
               exit 2
       fi
+    override-build: "${CRAFT_PROJECT_DIR}/snap/local/scriptlets/main-override-build"
     organize:
       usr/local/lib/: lib/
     prime:
@@ -119,3 +123,17 @@ apps:
       # For accessing models
       - home
       - removable-media
+
+  download-ggml-model:
+    command: bin/download-ggml-model.sh
+    plugs: &download-scripts-plugs
+      # For storing models
+      - home
+      - removable-media
+
+      # For downloading models
+      - network
+
+  download-vad-model:
+    command: bin/download-vad-model.sh
+    plugs: *download-scripts-plugs

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Customize the build step of the main part
+#
+# Copyright 2025 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+# SPDX-License-Identifier: MIT
+set -eu
+
+if ! craftctl default; then
+    printf \
+        'Error: Unable to run the default action of this step.\n' \
+        1>&2
+    exit 2
+fi
+
+printf \
+    'Info: Installing the download scripts...\n'
+install_opts=(
+    --mode 0755
+    --verbose
+)
+if ! install "${install_opts[@]}" \
+    "${CRAFT_PART_SRC}/models/download-ggml-model.sh" \
+    "${CRAFT_PART_SRC}/models/download-vad-model.sh" \
+    "${CRAFT_PART_INSTALL}/bin/"; then
+    printf \
+        'Error: Unable to install the download scripts.\n' \
+        1>&2
+    exit 2
+fi
+
+printf \
+    'Info: Patching the download scripts...\n'
+sed_opts=(
+    --expression='s@whisper_cmd="whisper-cli"@whisper_cmd="whisper-cpp.cli"@'
+    --in-place
+)
+if ! sed "${sed_opts[@]}" \
+    "${CRAFT_PART_INSTALL}/bin/download-ggml-model.sh" \
+    "${CRAFT_PART_INSTALL}/bin/download-vad-model.sh"; then
+    printf \
+        'Error: Unable to patch the download scripts.\n' \
+        1>&2
+    exit 2
+fi
