@@ -5,7 +5,7 @@ name: whisper-cpp
 title: whisper.cpp (UNOFFICIAL)
 summary: Port of OpenAI's Whisper model in C/C++
 description: |-
-  **Packager-specific information**
+  **Distribution-specific information**
 
   This is NOT an official distribution of whisper.cpp, please file any issue
   regarding the usage of this snap to the snap's own issue tracker:
