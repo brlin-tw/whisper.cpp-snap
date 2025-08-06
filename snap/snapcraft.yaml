@@ -51,11 +51,9 @@ parts:
     source: https://github.com/ggerganov/whisper.cpp.git
     plugin: cmake
     cmake-parameters:
-      # Doesn't work :(
-      #- -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL}
-      #- -DCMAKE_INSTALL_BINDIR=bin
-      #- -DCMAKE_INSTALL_LIBDIR=lib
-      #- -DCMAKE_BINARY_DIR="${CRAFT_PART_INSTALL}/usr/local"
+      # Make installation paths relative to the snap prefix
+      - -DCMAKE_INSTALL_PREFIX=""
+      - -DCMAKE_BINARY_DIR="${CRAFT_PART_INSTALL}"
 
       # The server example will fail if enabled
       - -DWHISPER_FFMPEG=OFF
@@ -106,37 +104,14 @@ parts:
               1>&2
               exit 2
       fi
-    override-build: |
-      set -o nounset
-
-      if ! craftctl default; then
-          printf \
-              'Error: Unable to run the default action of this step.\n' \
-              1>&2
-              exit 2
-      fi
-
-      # The example binaries won't be installed by CMake for some reason...
-      cp_opts=(
-          --archive
-          --verbose
-      )
-      if ! cp "${cp_opts[@]}" \
-          "${CRAFT_PART_BUILD}/bin" \
-          "${CRAFT_PART_INSTALL}/bin"; then
-          printf \
-              'Error: Unable to install the built executables.\n' \
-              1>&2
-          exit 2
-      fi
     organize:
       usr/local/lib/: lib/
     prime:
       # Development files
       - -usr/local/include
 apps:
-  main:
-    command: bin/main
+  cli:
+    command: bin/whisper-cli
     plugs:
       # For accessing models
       - home
