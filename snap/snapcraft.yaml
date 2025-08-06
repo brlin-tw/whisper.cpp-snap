@@ -71,14 +71,19 @@ parts:
 
       # Build artifact caching is not applicable in snap packaging
       - -DGGML_CCACHE=OFF
+
+      # Support media file conversion
+      - -DWHISPER_FFMPEG=ON
     build-packages:
       - pkg-config
-      #- libavcodec-dev
-      #- libavdevice-dev
-      #- libavformat-dev
-      #- libswresample-dev
-      #- libavutil-dev
-      #- libpostproc-dev
+
+      # Support media file conversion
+      - libavcodec-dev
+      - libavdevice-dev
+      - libavformat-dev
+      - libswresample-dev
+      - libavutil-dev
+      - libpostproc-dev
 
       # selective-checkout dependencies
       - curl
@@ -88,6 +93,14 @@ parts:
     stage-packages:
       # For download scripts, bash is not needed as it is available in the base snap
       - curl
+
+      # Support media file conversion
+      - libavcodec58
+      - libavdevice58
+      - libavformat58
+      - libswresample3
+      - libavutil56
+      - libpostproc55
 
       - libgomp1
     override-pull: |
