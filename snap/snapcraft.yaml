@@ -18,6 +18,16 @@ description: |-
       ggerganov/whisper.cpp: Port of OpenAI's Whisper model in C/C++
       https://github.com/ggerganov/whisper.cpp
 
+  The following commands are provided by this snap:
+
+  * `whisper-cpp.cli`: Corresponds to the `whisper-cli` command, which is the main CLI interface for whisper.cpp.
+  * `whisper-cpp.download-ggml-model`: Upstream utility script to download GGML models for whisper.cpp.
+  * `whisper-cpp.download-vad-model`: Upstream utility script to download VAD models for whisper.cpp.
+
+  You may run the following command in a terminal to setup the upstream preferred `whisper-cli` command:
+
+      sudo snap alias whisper-cpp.cli whisper-cli
+
   **Upstream information**
 
   High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
