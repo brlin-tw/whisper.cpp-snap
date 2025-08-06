@@ -111,8 +111,6 @@ parts:
               exit 2
       fi
     override-build: "${CRAFT_PROJECT_DIR}/snap/local/scriptlets/main-override-build"
-    organize:
-      usr/local/lib/: lib/
     prime:
       # Development files
       - -usr/local/include
