@@ -103,3 +103,15 @@ __pycache__
 
 /*.snap
 /*_source.tar.bz2
+
+# Don't track media files and their transcribe results for testing
+*.aac*
+*.flac*
+*.mp3*
+*.mp4*
+*.ogg*
+*.opus*
+*.wav*
+
+# Don't track model files
+*.bin
