@@ -127,6 +127,7 @@ parts:
     prime:
       # Development files
       - -include
+
 apps:
   cli:
     command: bin/whisper-cli
