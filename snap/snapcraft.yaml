@@ -84,16 +84,26 @@ parts:
 
       # Support media file conversion
       - -DWHISPER_FFMPEG=ON
+    build-snaps:
+      - ffmpeg-2204-sdk
+    build-environment:
+      - PKG_CONFIG_PATH: /snap/ffmpeg-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
+      - CMAKE_LIBRARY_PATH: /snap/ffmpeg-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+      - PATH: /snap/ffmpeg-2204-sdk/current/usr/bin${PATH:+:$PATH}
     build-packages:
       - pkg-config
-
-      # Support media file conversion
-      - libavcodec-dev
-      - libavdevice-dev
-      - libavformat-dev
-      - libswresample-dev
-      - libavutil-dev
-      - libpostproc-dev
+      - libcairo2-dev
+      - libmpg123-dev
+      - libogg-dev
+      - libopenjp2-7-dev
+      - libopus-dev
+      - librsvg2-dev
+      - libspeex-dev
+      - libtheora-dev
+      - libtwolame-dev
+      - libva-dev
+      - libvpx-dev
+      - libwebp-dev
 
       # selective-checkout dependencies
       - curl
@@ -104,15 +114,22 @@ parts:
       # For download scripts, bash is not needed as it is available in the base snap
       - curl
 
-      # Support media file conversion
-      - libavcodec58
-      - libavdevice58
-      - libavformat58
-      - libswresample3
-      - libavutil56
-      - libpostproc55
-
+      - libcairo2
       - libgomp1
+      - libmpg123-0
+      - libogg0
+      - libopenjp2-7
+      - libopus0
+      - librsvg2-2
+      - libspeex1
+      - libtheora0
+      - libtwolame0
+      - libva2
+      - libva-drm2
+      - libva-x11-2
+      - libvpx7
+      - libwebp7
+      - libwebpmux3
     override-pull: |
       set -o nounset
 
@@ -138,9 +155,25 @@ parts:
       # Development files
       - -include
 
+      # Unneeded binaries
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicui18n.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
+      - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libtheora.so*
+
+plugs:
+  ffmpeg-2204:
+    interface: content
+    target: ffmpeg-platform
+    default-provider: ffmpeg-2204
+
 apps:
   cli:
     command: bin/whisper-cli
+    environment:
+      LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
+      PATH: $SNAP/ffmpeg-platform/usr/bin:$PATH
     plugs:
       # For accessing models
       - home
