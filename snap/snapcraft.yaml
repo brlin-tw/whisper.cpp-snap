@@ -55,6 +55,11 @@ adopt-info: main
 grade: stable
 confinement: strict
 compression: lzo
+architectures:
+  - amd64
+  - arm64
+  - armhf
+  - ppc64el
 
 parts:
   main:
