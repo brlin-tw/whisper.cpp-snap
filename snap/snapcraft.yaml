@@ -87,6 +87,9 @@ parts:
       - -DGGML_F16C=OFF
       - -DGGML_FMA=OFF
 
+      # Support GPU acceleration via the Vulkan API
+      - -DGGML_VULKAN=ON
+
       # Build artifact caching is not applicable in snap packaging
       - -DGGML_CCACHE=OFF
 
@@ -99,6 +102,7 @@ parts:
       - LD_LIBRARY_PATH: /snap/ffmpeg-2404-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
       - PATH: /snap/ffmpeg-2404-sdk/current/usr/bin${PATH:+:$PATH}
     build-packages:
+      - glslc
       - pkg-config
       - libcairo2-dev
       - libmpg123-dev
@@ -112,6 +116,7 @@ parts:
       - libva-dev
       - libvdpau-dev
       - libvpx-dev
+      - libvulkan-dev
       - libwebp-dev
 
       # selective-checkout dependencies
@@ -138,6 +143,7 @@ parts:
       - libva-x11-2
       - libvdpau1
       - libvpx9
+      - libvulkan1
       - libwebp7
       - libwebpmux3
     override-pull: |
@@ -172,22 +178,52 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so*
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libtheora.so*
 
+  gpu-2404:
+    after:
+      - main
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404
+      # Workaround for https://bugs.launchpad.net/snapd/+bug/2055273
+      mkdir -p "${CRAFT_PRIME}/gpu-2404"
+    prime:
+      - bin/gpu-2404-wrapper
+
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/gpu-2404/libdrm
+  /usr/share/drirc.d:
+    symlink: $SNAP/gpu-2404/drirc.d
+
 plugs:
   ffmpeg-2404:
     interface: content
     target: ffmpeg-platform
     default-provider: ffmpeg-2404
 
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
+
 apps:
   cli:
     command: bin/whisper-cli
+    command-chain:
+      - bin/gpu-2404-wrapper
     environment:
       LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-      PATH: $SNAP/ffmpeg-platform/usr/bin
+      # /usr/bin provides the "snapctl" command for the gpu-2404-wrapper launcher
+      PATH: $SNAP/ffmpeg-platform/usr/bin:/usr/bin
     plugs:
       # For accessing models
       - home
       - removable-media
+
+      # For accessing GPU resources
+      - opengl
 
   download-ggml-model:
     command: bin/download-ggml-model.sh
