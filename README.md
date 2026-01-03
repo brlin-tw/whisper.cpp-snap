@@ -13,6 +13,14 @@ This section documents the materials referenced during the development of this p
   The upstream project.
 * [MIT License - Wikipedia](https://en.wikipedia.org/wiki/MIT_License)  
   Explains the versioning characteristic of the MIT license.
+* [Install ffmpeg-2204 on Linux | Snap Store](https://snapcraft.io/ffmpeg-2204)  
+  Explains the supported architectures of the ffmpeg-2204 platform snap.
+* [Package Repository Properties - Craft Archives documentation](https://canonical-craft-archives.readthedocs-hosted.com/en/latest/reference/repo_properties/)  
+  Explains how to specify a PPA repository in Snapcraft.
+* [iar - How to specify a compiler in CMake? - Stack Overflow](https://stackoverflow.com/questions/45933732/how-to-specify-a-compiler-in-cmake)  
+  Explains how to specify the C and C++ compilers in CMake.
+* [Consuming the interface | The graphics-core22 Snap interface](https://canonical.com/mir/docs/the-graphics-core22-snap-interface#heading--consuming-the-interface--using-the-helpers)  
+  Explains how to use the mesa-core22 platform snap.
 
 ## Licensing
 
