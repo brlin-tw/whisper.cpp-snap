@@ -28,7 +28,9 @@ description: |-
 
       sudo snap alias whisper-cpp.cli whisper-cli
 
-  **Upstream information**
+  This snap DOES NOT support GPU acceleration yet, it is currently build against the x86_64 baseline ABI for greatest compatibility.
+
+  **Upstream information(some features are not applicable to snap)**
 
   High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
 
