@@ -52,16 +52,17 @@ issues: https://gitlab.com/brlin/whisper.cpp-snap/-/issues
 source-code: https://gitlab.com/brlin/whisper.cpp-snap
 website: https://gitlab.com/brlin/whisper.cpp-snap
 
-base: core22
+base: core24
 adopt-info: main
 grade: stable
 confinement: strict
 compression: lzo
-architectures:
-  - amd64
-  - arm64
-  - armhf
-  - ppc64el
+platforms:
+  amd64:
+  arm64:
+  armhf:
+  ppc64el:
+  riscv64:
 
 parts:
   main:
@@ -92,11 +93,11 @@ parts:
       # Support media file conversion
       - -DWHISPER_FFMPEG=ON
     build-snaps:
-      - ffmpeg-2204-sdk
+      - ffmpeg-2404-sdk
     build-environment:
-      - PKG_CONFIG_PATH: /snap/ffmpeg-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
-      - CMAKE_LIBRARY_PATH: /snap/ffmpeg-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
-      - PATH: /snap/ffmpeg-2204-sdk/current/usr/bin${PATH:+:$PATH}
+      - PKG_CONFIG_PATH: /snap/ffmpeg-2404-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
+      - LD_LIBRARY_PATH: /snap/ffmpeg-2404-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+      - PATH: /snap/ffmpeg-2404-sdk/current/usr/bin${PATH:+:$PATH}
     build-packages:
       - pkg-config
       - libcairo2-dev
@@ -109,6 +110,7 @@ parts:
       - libtheora-dev
       - libtwolame-dev
       - libva-dev
+      - libvdpau-dev
       - libvpx-dev
       - libwebp-dev
 
@@ -123,7 +125,7 @@ parts:
 
       - libcairo2
       - libgomp1
-      - libmpg123-0
+      - libmpg123-0t64
       - libogg0
       - libopenjp2-7
       - libopus0
@@ -134,7 +136,8 @@ parts:
       - libva2
       - libva-drm2
       - libva-x11-2
-      - libvpx7
+      - libvdpau1
+      - libvpx9
       - libwebp7
       - libwebpmux3
     override-pull: |
@@ -170,17 +173,17 @@ parts:
       - -usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libtheora.so*
 
 plugs:
-  ffmpeg-2204:
+  ffmpeg-2404:
     interface: content
     target: ffmpeg-platform
-    default-provider: ffmpeg-2204
+    default-provider: ffmpeg-2404
 
 apps:
   cli:
     command: bin/whisper-cli
     environment:
-      LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
-      PATH: $SNAP/ffmpeg-platform/usr/bin:$PATH
+      LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+      PATH: $SNAP/ffmpeg-platform/usr/bin
     plugs:
       # For accessing models
       - home
