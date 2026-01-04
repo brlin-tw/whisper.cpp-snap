@@ -118,3 +118,6 @@ __pycache__
 
 # Don't track unpacked snap filesystems(for patching existing revisions)
 squashfs-root
+
+# Don't track snapcraft remote-build logs
+/snapcraft-*.txt
