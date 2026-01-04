@@ -28,7 +28,9 @@ description: |-
 
       sudo snap alias whisper-cpp.cli whisper-cli
 
-  This snap DOES NOT support GPU acceleration yet, it is currently build against the x86_64 baseline ABI for greatest compatibility.
+  This snap only supports Vulkan-based GPU inference at the moment.  As
+  for CPU inference, this snap is currently built against the x86_64
+  baseline ABI which is very slow.
 
   **Upstream information(some features are not applicable to snap)**
 
