@@ -33,6 +33,12 @@ This section documents the materials referenced during the development of this p
   Explains the environment variable to set additional ICD paths to Vulkan.
 * [Vulkan-Loader/loader/loader.c at 8198beb · KhronosGroup/Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader/blob/8198bebc7fe31c3da54b1dfacbb92e8697646701/loader/loader.c)  
   Explains the algorithm of loading ICD files in Vulkan.
+* [CMAKE_BUILD_PARALLEL_LEVEL — CMake Documentation](https://cmake.org/cmake/help/latest/envvar/CMAKE_BUILD_PARALLEL_LEVEL.html)  
+  Explains the environment variable to set the build parallel level in CMake.
+* [Architectures - Snapcraft documentation](https://documentation.ubuntu.com/snapcraft/stable/reference/architectures/)  
+  Explains how to specify supported architectures on core24 base.
+* [Advanced grammar - Snapcraft documentation](https://documentation.ubuntu.com/snapcraft/stable/reference/advanced-grammar/)  
+  Explains how to specify architecture-specific configurations.
 
 ## Licensing
 
