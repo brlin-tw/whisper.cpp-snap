@@ -217,6 +217,7 @@ apps:
       LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
       # /usr/bin provides the "snapctl" command for the gpu-2404-wrapper launcher
       PATH: $SNAP/ffmpeg-platform/usr/bin:/usr/bin
+      VK_ADD_DRIVER_FILES: /var/lib/snapd/lib/vulkan/icd.d
     plugs:
       # For accessing models
       - home

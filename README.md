@@ -27,6 +27,12 @@ This section documents the materials referenced during the development of this p
   Explains how to migrate a snap from the core22 base to the core24 base.
 * [snapcrafters/ffmpeg-2404-sdk: Content snap for ffmpeg](https://github.com/snapcrafters/ffmpeg-2404-sdk?tab=readme-ov-file#uses)  
   Explains how to integrate the FFmpeg Library Content Snap.
+* [L43-L48 · snapd/cmd/snap-confine/mount-support-nvidia.c at 029d5da · canonical/snapd](https://github.com/canonical/snapd/blob/029d5dafb69a4e67ffe57344eefbef8d231403af/cmd/snap-confine/mount-support-nvidia.c#L43-L48)  
+  Explains the mount path of the NVIDIA Vulkan ICD files inside a snap.
+* [Table of Debug Environment Variables | Architecture of the Vulkan Loader Interfaces](https://vulkan.lunarg.com/doc/view/latest/mac/LoaderInterfaceArchitecture.html#table-of-debug-environment-variables)  
+  Explains the environment variable to set additional ICD paths to Vulkan.
+* [Vulkan-Loader/loader/loader.c at 8198beb · KhronosGroup/Vulkan-Loader](https://github.com/KhronosGroup/Vulkan-Loader/blob/8198bebc7fe31c3da54b1dfacbb92e8697646701/loader/loader.c)  
+  Explains the algorithm of loading ICD files in Vulkan.
 
 ## Licensing
 
