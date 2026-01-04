@@ -98,6 +98,10 @@ parts:
       - PKG_CONFIG_PATH: /snap/ffmpeg-2404-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
       - LD_LIBRARY_PATH: /snap/ffmpeg-2404-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
       - PATH: /snap/ffmpeg-2404-sdk/current/usr/bin${PATH:+:$PATH}
+      # Avoid "virtual memory exhausted: Cannot allocate memory" build errors
+      # On armhf build hosts the default build parallel level is 8
+      - to armhf:
+          - CMAKE_BUILD_PARALLEL_LEVEL: '2'
     build-packages:
       - glslc
       - pkg-config
