@@ -21,6 +21,12 @@ This section documents the materials referenced during the development of this p
   Explains how to specify the C and C++ compilers in CMake.
 * [Consuming the interface | The graphics-core22 Snap interface](https://canonical.com/mir/docs/the-graphics-core22-snap-interface#heading--consuming-the-interface--using-the-helpers)  
   Explains how to use the mesa-core22 platform snap.
+* [Consuming the interface | The gpu-2404 Snap interface](https://canonical.com/mir/docs/the-gpu-2404-snap-interface#heading--consuming-the-interface)  
+  Explains how to use the mesa-2404 platform snap.
+* [Change from core22 to core24 - Snapcraft 8.13.2 documentation](https://documentation.ubuntu.com/snapcraft/stable/how-to/change-bases/change-from-core22-to-core24/)  
+  Explains how to migrate a snap from the core22 base to the core24 base.
+* [snapcrafters/ffmpeg-2404-sdk: Content snap for ffmpeg](https://github.com/snapcrafters/ffmpeg-2404-sdk?tab=readme-ov-file#uses)  
+  Explains how to integrate the FFmpeg Library Content Snap.
 
 ## Licensing
 
