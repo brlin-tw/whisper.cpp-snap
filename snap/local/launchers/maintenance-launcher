@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Launcher for snap maintenance tasks
+#
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-4.0+
+
+if ! set -eu; then
+    printf \
+        'Error: Unable to set defensive interpreter behaviors.\n' \
+        1>&2
+    exit 1
+fi
+
+script="${BASH_SOURCE[0]}"
+script_name="${script##*/}"
+
+if test "${#}" -eq 0; then
+    printf \
+        '%s: Error: No command to exec.\n' \
+        "${script_name}" \
+        1>&2
+    exit 1
+fi
+
+if ! exec "${@}"; then
+    printf \
+        '%s: Error: Unable to run the exec command.\n' \
+        "${script_name}" \
+        1>&2
+    exit 1
+fi

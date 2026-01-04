@@ -195,6 +195,14 @@ parts:
     prime:
       - bin/gpu-2404-wrapper
 
+  launchers:
+    source: snap/local/launchers
+    plugin: dump
+    organize:
+      '*-launcher': bin/
+    stage:
+      - -README.md
+
 layout:
   /usr/share/libdrm:
     bind: $SNAP/gpu-2404/libdrm
@@ -216,6 +224,7 @@ apps:
   cli:
     command: bin/whisper-cli
     command-chain:
+      - bin/maintenance-launcher
       - bin/gpu-2404-wrapper
     environment:
       LD_LIBRARY_PATH: $SNAP/ffmpeg-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
