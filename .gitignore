@@ -115,3 +115,6 @@ __pycache__
 
 # Don't track model files
 *.bin
+
+# Don't track unpacked snap filesystems(for patching existing revisions)
+squashfs-root
