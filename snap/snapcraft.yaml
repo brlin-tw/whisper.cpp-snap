@@ -73,9 +73,6 @@ parts:
       - -DCMAKE_INSTALL_PREFIX=""
       - -DCMAKE_BINARY_DIR="${CRAFT_PART_INSTALL}"
 
-      # The server example will fail if enabled
-      - -DWHISPER_FFMPEG=OFF
-
       # This snap is meant for the baseline x86_64 ABI for greatest
       # compatibility
       - -DGGML_NATIVE=OFF
