@@ -156,6 +156,7 @@ parts:
       project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR}"}"
       selective_checkout_opts=(
           --append-packaging-revision
+          --force-stable
       )
       if ! "${project_dir}/snap/local/scriptlets/selective-checkout" "${selective_checkout_opts[@]}"; then
           printf \
