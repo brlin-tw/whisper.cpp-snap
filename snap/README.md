@@ -33,17 +33,16 @@ Published for Linux with 💝 by Snapcrafters
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/whisper-cpp)
 
-<!--
 ## What is Working
 
-* [A list of functionallities that are verified working]
--->
+* Downloading GGML models using the `whisper-cpp.download-ggml-model` command
+* Downloading VAD models using the `whisper-cpp.download-vad-model` command
+* CPU transcription (very slow)
+* Vulkan-based GPU transcription (requires compatible GPU and drivers)
 
-<!-- Uncomment when you have test results
 ## What is NOT Working...yet
 
 Check out the [issue tracker](https://gitlab.com/brlin/whisper.cpp-snap/-/issues) for known issues.
--->
 
 ## Support
 
