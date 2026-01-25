@@ -4,9 +4,7 @@
 
 **This is the unofficial snap for whisper.cpp**, *"Port of OpenAI's Whisper model in C/C++"*. It works on Ubuntu, Fedora, Debian, and other major Linux distributions.
 
-<!-- Uncomment and modify this when you are provided a snap status badge
 [![Status Badge of the `whisper-cpp` Snap](https://snapcraft.io/whisper-cpp/badge.svg)](https://snapcraft.io/whisper-cpp)
--->
 
 <!-- Uncomment and modify this when you have a screenshot
 ![Screenshot of the Snapped Application](local/screenshots/screenshot.png "Screenshot of the Snapped Application")
