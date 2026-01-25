@@ -12,7 +12,7 @@
 ![Screenshot of the Snapped Application](local/screenshots/screenshot.png "Screenshot of the Snapped Application")
 -->
 
-Published for <img src="http://anything.codes/slack-emoji-for-techies/emoji/tux.png" align="top" width="24" /> with 💝 by Snapcrafters
+Published for Linux with 💝 by Snapcrafters
 
 <!-- Uncomment and modify this when you have published the snap to the Snap Store
 ## Installation
