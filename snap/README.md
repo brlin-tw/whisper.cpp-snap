@@ -12,33 +12,26 @@
 
 Published for Linux with 💝 by Snapcrafters
 
-<!-- Uncomment and modify this when you have published the snap to the Snap Store
 ## Installation
+
 ([Don't have snapd installed?](https://snapcraft.io/docs/core/install))
 
 ### In a Terminal
 
     # Install the snap #
-    sudo snap install --channel=edge --devmode whisper-cpp
-    #sudo snap install --channel=beta whisper-cpp
-    #sudo snap install whisper-cpp
 
-    # Connect the snap to essential security confinement interfaces #
-    ## (Proper reasoning for connecting _plug_name_) ##
-    sudo snap connect whisper-cpp:_plug_name_
+    sudo snap install whisper-cpp
 
     # Connect the snap to optional security confinement interfaces #
-    ## (Proper reasoning for connecting _plug_name_) ##
-    sudo snap connect whisper-cpp:_plug_name_
+    ## For accessing files in /mnt, /media, and /run/media directories ##
+    sudo snap connect whisper-cpp:removable-media
 
     # Launch the application #
-    whisper-cpp
-    snap run whisper-cpp # If you have another existing installation
+    whisper-cpp.cli
 
 ### The Graphical Way
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/whisper-cpp)
--->
 
 <!--
 ## What is Working
