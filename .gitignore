@@ -8,7 +8,7 @@
 #
 # Copyright 2018 The Snapcrafters Community <https://forum.snapcraft.io/>
 # Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
-# SPDX-License-Identifier: CC-BY-SA-4.0 OR LicenseRef-Apache-2.0-If-Not-Used-In-Template-Projects
+# SPDX-License-Identifier: CC-BY-SA-4.0
 
 # Don't track regular Unix hidden files
 .*
