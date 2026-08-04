@@ -93,7 +93,7 @@ parts:
       - -DGGML_CCACHE=OFF
 
       # Support media file conversion
-      - -DWHISPER_FFMPEG=ON
+      - -DWHISPER_COMMON_FFMPEG=ON
     build-snaps:
       - ffmpeg-2404-sdk
     build-environment:
