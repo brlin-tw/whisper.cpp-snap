@@ -1,0 +1,58 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E6=9E=97=E5=8D=9A=E4=BB=81(Buo-ren=20Lin)?= <buo.ren.lin@gmail.com>
+Date: Sat, 19 Sep 2026 17:10:00 +0000
+Subject: [PATCH] Embed Vulkan shaders as string literals to reduce compilation memory
+
+vulkan-shaders-gen generates C++ files containing SPIR-V bytecode for
+Vulkan compute shaders as arrays of hex byte values (e.g. `{ 0x03, 0x02, ... }`).
+In large translation units such as mul_mm.comp.cpp (containing >1,000 shaders
+and >30 million integer constants across 2.5 million lines), the compiler's
+C++ front-end creates an INTEGER_CST AST node for every byte literal.
+This requires over 3.4 GiB of heap memory during parsing alone, causing
+32-bit compilers (such as GCC on armhf) to fail with:
+"virtual memory exhausted: Cannot allocate memory" due to the 3 GiB
+user-space address space limit (CONFIG_VMSPLIT_3G).
+
+Output the shader data as concatenated octal string literals
+("\"\\ooo...\"") instead. This reduces the number of AST tokens from
+tens of millions to one STRING_CST node per shader array, cutting compiler
+memory usage by >85% (from >3.5 GiB down to ~530 MiB) and speeding up
+compilation from minutes to under 2 seconds.
+
+Also add alignas(4) to ensure proper 4-byte alignment required by SPIR-V
+when shaders are cast to uint32_t*.
+
+Forwarded: no
+---
+ ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp b/ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp
+index 27ff68c..5dc53af 100644
+--- a/ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp
++++ b/ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp
+@@ -1195,13 +1195,18 @@ void write_output_files() {
+             }
+ 
+             src << "const uint64_t " << name << "_len = " << data.size() << ";\n";
+-            src << "const unsigned char " << name << "_data[" << data.size() << "] = {\n" << std::hex;
++            src << "alignas(4) const unsigned char " << name << "_data[] =\n";
+             auto bytes = reinterpret_cast<const uint8_t*>(data.data());
+-            for (size_t i = 0; i < data.size(); ++i) {
+-                src << "0x" << static_cast<int>(bytes[i]) << ",";
+-                if ((i + 1) % 12 == 0) src << "\n";
++            for (size_t i = 0; i < data.size(); i += 16) {
++                src << "\"";
++                for (size_t j = i; j < std::min(data.size(), i + 16); ++j) {
++                    char buf[5];
++                    snprintf(buf, sizeof(buf), "\\%03o", bytes[j]);
++                    src << buf;
++                }
++                src << "\"\n";
+             }
+-            src << std::dec << "\n};\n\n";
++            src << ";\n\n";
+         }
+     }
+ 
+-- 

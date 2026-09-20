@@ -23,3 +23,9 @@ path = "snap/local/patches/0001-Fix-Vulkan-Hpp-handle-usage-on-32-bit-targets.pa
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 miyan <1138989048@qq.com>"
 SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "snap/local/patches/0002-Embed-Vulkan-shaders-as-string-literals-to-reduce-compilation-memory.patch"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>"
+SPDX-License-Identifier = "MIT"
