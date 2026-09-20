@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # System dependency installation logic for the static analysis program
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 set \
     -o errexit \
@@ -38,13 +38,24 @@ if test "${EUID}" -ne 0; then
 fi
 
 project_dir="$(dirname "${script_dir}")"
+
+# Load the common functions
+# shellcheck source=SCRIPTDIR/../functions.sh
+if ! source "${project_dir}/functions.sh"; then
+    printf \
+        'Error: Unable to load the common functions.\n' \
+        1>&2
+    exit 1
+fi
+
 cache_dir="${project_dir}/.cache"
 
 if ! test -e "${cache_dir}"; then
     install_opts=(
         --directory
     )
-    if test -v SUDO_USER; then
+    if test -v SUDO_USER \
+        && test -v SUDO_GID; then
         # Configure same user as the running environment to avoid access
         # problems afterwards
         install_opts+=(
@@ -60,22 +71,11 @@ if ! test -e "${cache_dir}"; then
     fi
 fi
 
-apt_archive_cache_mtime_epoch="$(
-    stat \
-        --format=%Y \
-        /var/cache/apt/archives
-)"
-current_time_epoch="$(
-    date +%s
-)"
-if test "$((current_time_epoch - apt_archive_cache_mtime_epoch))" -ge 86400; then
+if ! refresh_debian_local_cache; then
     printf \
-        'Info: Refreshing the APT local package cache...\n'
-    if ! apt-get update; then
-        printf \
-            'Error: Unable to refresh the APT local package cache.\n' \
-            1>&2
-    fi
+        'Error: Unable to refresh the APT local package cache.\n' \
+        1>&2
+    exit 2
 fi
 
 # Silence warnings regarding unavailable debconf frontends
@@ -98,86 +98,19 @@ if ! dpkg -s "${base_runtime_dependency_pkgs[@]}" &>/dev/null; then
     fi
 fi
 
-if ! test -v CI; then
+if ! distro_id="$(get_distro_identifier)"; then
     printf \
-        'Info: Detecting local region code...\n'
-    wget_opts=(
-        # Output to the standard output device
-        --output-document=-
+        'Error: Unable to determine the distribution identifier.\n' \
+        1>&2
+    exit 2
+fi
 
-        # Don't output debug messages
-        --quiet
-    )
-    if ip_reverse_lookup_service_response="$(
-            wget \
-                "${wget_opts[@]}" \
-                https://ipinfo.io/json
-        )"; then
-        grep_opts=(
-            --perl-regexp
-            --only-matching
-        )
-        if ! region_code="$(
-            grep \
-                "${grep_opts[@]}" \
-                '(?<="country": ")[[:alpha:]]+' \
-                <<<"${ip_reverse_lookup_service_response}"
-            )"; then
-            printf \
-                'Warning: Unable to query the local region code, falling back to default.\n' \
-                1>&2
-            region_code=
-        else
-            printf \
-                'Info: Local region code determined to be "%s"\n' \
-                "${region_code}"
-        fi
-    else
+if test "${distro_id}" == ubuntu; then
+    if ! switch_ubuntu_local_mirror; then
         printf \
-            'Warning: Unable to detect the local region code(IP address reverse lookup service not available), falling back to default.\n' \
+            'Error: Unable to switch to a local Ubuntu package mirror.\n' \
             1>&2
-        region_code=
-    fi
-
-    if test -n "${region_code}"; then
-        # The returned region code is capitalized, fixing it.
-        region_code="${region_code,,*}"
-
-        printf \
-            'Info: Checking whether the local Ubuntu archive mirror exists...\n'
-        if ! \
-            getent hosts \
-                "${region_code}.archive.ubuntu.com" \
-                >/dev/null; then
-            printf \
-                "Warning: The local Ubuntu archive mirror doesn't seem to exist, falling back to default...\\n"
-            region_code=
-        fi
-    fi
-
-    if test -n "${region_code}" \
-        && ! grep -q "${region_code}.archive.u" /etc/apt/sources.list; then
-        printf \
-            'Info: Switching to use the local APT software repository mirror...\n'
-        if ! \
-            sed \
-                --in-place \
-                "s@//archive.u@//${region_code}.archive.u@g" \
-                /etc/apt/sources.list; then
-            printf \
-                'Error: Unable to switch to use the local APT software repository mirror.\n' \
-                1>&2
-            exit 2
-        fi
-
-        printf \
-            'Info: Refreshing the local APT software archive cache...\n'
-        if ! apt-get update; then
-            printf \
-                'Error: Unable to refresh the local APT software archive cache.\n' \
-                1>&2
-            exit 2
-        fi
+        exit 2
     fi
 fi
 
@@ -220,12 +153,15 @@ if ! test -e "${shellcheck_dir}/shellcheck"; then
     fi
 
     printf \
-        'Info: Checking ShellCheck architecure availability...\n'
+        'Info: Checking ShellCheck architecture availability...\n'
+    # Accurate as of 2025/10/12
+    # https://github.com/koalaman/shellcheck/releases/
     case "${arch}" in
-        x86_64|armv6hf|aarch64)
-            # Assuming the ShellCheck architecture is the same, which
-            # is probably incorrect...
+        x86_64|aarch64|riscv64)
             shellcheck_arch="${arch}"
+        ;;
+        arm|armhf)
+            shellcheck_arch='armv6hf'
         ;;
         *)
             printf \
@@ -324,11 +260,19 @@ if ! shellcheck_version="$(
     printf \
         'Error: Unable to parse out the ShellCheck version string.\n' \
         1>&2
+    exit 2
 fi
 
 printf \
     'Info: ShellCheck version is "%s".\n' \
     "${shellcheck_version}"
+
+if ! workaround_git_dubious_ownership_error "${project_dir}"; then
+    printf \
+        "Error: Unable to workaround Git's \"detected dubious ownership...\" error.\\n" \
+        1>&2
+    exit 1
+fi
 
 printf \
     'Info: Operation completed without errors.\n'

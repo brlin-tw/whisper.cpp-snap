@@ -2,7 +2,7 @@
 # Install system dependencies required for generating the project
 # build artifacts
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <buo.ren.lin@gmail.com>
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 set \
@@ -27,6 +27,7 @@ if test "${flag_dependency_check_failed}" == true; then
     printf \
         'Error: Dependency check failed, please check your installation.\n' \
         1>&2
+    exit 1
 fi
 
 if test -v BASH_SOURCE; then
@@ -51,22 +52,22 @@ if test "${EUID}" -ne 0; then
     exit 1
 fi
 
-apt_archive_cache_mtime_epoch="$(
-    stat \
-        --format=%Y \
-        /var/cache/apt/archives
-)"
-current_time_epoch="$(
-    date +%s
-)"
-if test "$((current_time_epoch - apt_archive_cache_mtime_epoch))" -ge 86400; then
+project_dir="$(dirname "${script_dir}")"
+
+# Load the common functions
+# shellcheck source=SCRIPTDIR/../functions.sh
+if ! source "${project_dir}/functions.sh"; then
     printf \
-        'Info: Refreshing the APT local package cache...\n'
-    if ! apt-get update; then
-        printf \
-            'Error: Unable to refresh the APT local package cache.\n' \
-            1>&2
-    fi
+        'Error: Unable to load the common functions.\n' \
+        1>&2
+    exit 1
+fi
+
+if ! refresh_debian_local_cache; then
+    printf \
+        'Error: Unable to refresh the APT local package cache.\n' \
+        1>&2
+    exit 2
 fi
 
 # Silence warnings regarding unavailable debconf frontends
@@ -92,80 +93,17 @@ if ! test -v CI; then
         fi
     fi
 
-    printf \
-        'Info: Detecting local region code...\n'
-    curl_opts=(
-        # Don't output debug messages
-        --silent
-        --show-error
-    )
-    if ip_reverse_lookup_service_response="$(
-            curl \
-                "${curl_opts[@]}" \
-                https://ipinfo.io/json
-        )"; then
-        grep_opts=(
-            --perl-regexp
-            --only-matching
-        )
-        if ! region_code="$(
-            grep \
-                "${grep_opts[@]}" \
-                '(?<="country": ")[[:alpha:]]+' \
-                <<<"${ip_reverse_lookup_service_response}"
-            )"; then
-            printf \
-                'Warning: Unable to query the local region code, falling back to default.\n' \
-                1>&2
-            region_code=
-        else
-            printf \
-                'Info: Local region code determined to be "%s"\n' \
-                "${region_code}"
-        fi
-    else
+    if ! distro_id="$(get_distro_identifier)"; then
         printf \
-            'Warning: Unable to detect the local region code(IP address reverse lookup service not available), falling back to default.\n' \
+            'Error: Unable to determine the distribution identifier.\n' \
             1>&2
-        region_code=
+        exit 2
     fi
 
-    if test -n "${region_code}"; then
-        # The returned region code is capitalized, fixing it.
-        region_code="${region_code,,*}"
-
-        printf \
-            'Info: Checking whether the local Ubuntu archive mirror exists...\n'
-        if ! \
-            getent hosts \
-                "${region_code}.archive.ubuntu.com" \
-                >/dev/null; then
+    if test "${distro_id}" == ubuntu; then
+        if ! switch_ubuntu_local_mirror; then
             printf \
-                "Warning: The local Ubuntu archive mirror doesn't seem to exist, falling back to default...\\n"
-            region_code=
-        fi
-    fi
-
-    if test -n "${region_code}" \
-        && ! grep -q "${region_code}.archive.u" /etc/apt/sources.list; then
-        printf \
-            'Info: Switching to use the local APT software repository mirror...\n'
-        if ! \
-            sed \
-                --in-place \
-                "s@//archive.u@//${region_code}.archive.u@g" \
-                /etc/apt/sources.list; then
-            printf \
-                'Error: Unable to switch to use the local APT software repository mirror.\n' \
-                1>&2
-            exit 2
-        fi
-
-        printf \
-            'Info: Refreshing the local APT software archive cache...\n'
-        if ! apt-get update; then
-            printf \
-                'Error: Unable to refresh the local APT software archive cache.\n' \
+                'Error: Unable to switch to a local Ubuntu package mirror.\n' \
                 1>&2
             exit 2
         fi

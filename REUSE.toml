@@ -5,6 +5,7 @@ SPDX-PackageDownloadLocation = "https://gitlab.com/brlin/whisper.cpp-snap"
 
 [[annotations]]
 path = [
+    "**/AGENTS.md",
     "**README.md",
     "**/README.md",
 ]

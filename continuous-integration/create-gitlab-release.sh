@@ -1,19 +1,29 @@
 #!/usr/bin/env bash
 # Create GitLab project release
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# Copyright 2024 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 set \
     -o errexit \
     -o nounset
 
-if ! test -v CI_PROJECT_ID; then
-    printf \
-        'Error: This program should be run under a GitLab CI environment.\n' \
-        1>&2
-    exit 1
-fi
+gitlab_ci_variables=(
+    CI_COMMIT_TAG
+    CI_PROJECT_ID
+    CI_PROJECT_NAME
+    CI_PROJECT_TITLE
+    CI_API_V4_URL
+)
+for variable in "${gitlab_ci_variables[@]}"; do
+    if ! test -v "${variable}"; then
+        printf \
+            'Error: This program should be run under a GitLab CI environment (environment variable %s not set).\n' \
+            "${variable}" \
+            1>&2
+        exit 1
+    fi
+done
 
 printf \
     'Info: Determining release version...\n'

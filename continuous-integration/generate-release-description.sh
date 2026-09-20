@@ -2,7 +2,7 @@
 # Generate release description text to explain the changes between the
 # previous release
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# Copyright 2024 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 set \
@@ -29,6 +29,13 @@ if ! git_tag_list="$(git tag --list 'v*')"; then
     exit 2
 fi
 
+if test -z "${git_tag_list}"; then
+    printf \
+        'Error: No release tag was detected.\n' \
+        1>&2
+    exit 2
+fi
+
 printf 'Info: Counting the release tags...\n'
 if ! git_tag_count="$(wc -l <<<"${git_tag_list}")"; then
     printf \
@@ -40,9 +47,21 @@ fi
 detailed_changes_markup="## Detailed changes"$'\n\n'
 
 if test -v CI_COMMIT_TAG; then
+    # GitLab CI
     release_tag="${CI_COMMIT_TAG}"
+else
+    # GitHub Actions
+    if ! test -v release_tag; then
+        printf \
+            'Error: The "release_tag" environment variable is not set.\n' \
+            1>&2
+        exit 1
+    fi
 fi
 
+git_log_opts=(
+    --format='format:* %s (%h) - %an'
+)
 if test "${git_tag_count}" -eq 1; then
     printf \
         'Info: Only one release tag was detected, generating the release description text from the very beginning to the "%s" release tag...\n' \
@@ -104,9 +123,6 @@ else
             "${previous_git_tag}" \
             "${release_tag}" \
             1>&2
-    git_log_opts=(
-        --format='format:* %s (%h) - %an'
-    )
     if ! detailed_changes_markup+="$(
         git log \
             "${git_log_opts[@]}" \

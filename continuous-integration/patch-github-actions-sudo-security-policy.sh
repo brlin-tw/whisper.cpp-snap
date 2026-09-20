@@ -8,7 +8,7 @@
 # * Including other files from within sudoers | Sudoers Manual | Sudo
 #   https://www.sudo.ws/docs/man/sudoers.man/#Including_other_files_from_within_sudoers
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <buo.ren.lin@gmail.com>
+# Copyright 2024 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 # Configure the interpreter behavior to bail out during problematic
@@ -16,6 +16,13 @@
 set \
     -o errexit \
     -o nounset
+
+if ! shopt -s nullglob; then
+    printf \
+        'Error: Unable to configure the nullglob shell option.\n' \
+        1>&2
+    exit 1
+fi
 
 required_commands=(
     install
@@ -64,6 +71,12 @@ fi
 ci_dir="${script_dir}"
 sudoers_dropin_dir="${ci_dir}/sudoers.d"
 
+if ! test -e "${sudoers_dropin_dir}"; then
+    printf \
+        'Error: No sudoers drop-in configuration directory found.\n'
+    exit 1
+fi
+
 sudoers_dropin_dir_system=/etc/sudoers.d
 if ! test -e "${sudoers_dropin_dir_system}"; then
     printf \
@@ -86,58 +99,61 @@ if ! test -e "${sudoers_dropin_dir_system}"; then
     fi
 fi
 
-for dropin_file in "${sudoers_dropin_dir}/"*.sudoers; do
-    dropin_filename="${dropin_file##*/}"
+sudoers_dropin_files=("${sudoers_dropin_dir}/"*.sudoers)
+if test "${#sudoers_dropin_files[@]}" -ne 0; then
+    for file in "${sudoers_dropin_files[@]}"; do
+        filename="${file##*/}"
 
-    printf \
-        'Info: Validating the "%s" sudoers drop-in file...\n' \
-        "${dropin_filename}"
-    visudo_opts=(
-        # Enable check-only mode
-        --check
-
-        # Specify an alternate sudoers file location
-        --file="${dropin_file}"
-
-        # NOTE: We don't use --quiet as it will also inhibit the syntax
-        # error messages, dump the stdout stream instead
-        #--quiet
-    )
-    if ! visudo "${visudo_opts[@]}" >/dev/null; then
         printf \
-            'Error: Syntax validation failed for the "%s" sudoers drop-in file.\n' \
-            "${dropin_filename}" \
-            1>&2
-        exit 2
-    fi
+            'Info: Validating the "%s" sudoers drop-in file...\n' \
+            "${filename}"
+        visudo_opts=(
+            # Enable check-only mode
+            --check
 
-    printf \
-        'Info: Installing the "%s" sudoers drop-in file...\n' \
-        "${dropin_filename}"
+            # Specify an alternate sudoers file location
+            --file="${file}"
 
-    # sudo will not accept filename with the period symbol in the
-    # filename, strip the convenicence filename suffix
-    dropin_filename_without_suffix="${dropin_filename%.sudoers}"
+            # NOTE: We don't use --quiet as it will also inhibit the syntax
+            # error messages, dump the stdout stream instead
+            #--quiet
+        )
+        if ! visudo "${visudo_opts[@]}" >/dev/null; then
+            printf \
+                'Error: Syntax validation failed for the "%s" sudoers drop-in file.\n' \
+                "${filename}" \
+                1>&2
+            exit 2
+        fi
 
-    installed_dropin_file="${sudoers_dropin_dir_system}/${dropin_filename_without_suffix}"
-    install_opts=(
-        --owner=root
-        --group=root
-        --mode=0644
-        --verbose
-    )
-    if ! \
-        install \
-            "${install_opts[@]}" \
-            "${dropin_file}" \
-            "${installed_dropin_file}"; then
         printf \
-            'Error: Unable to install the sudoers drop-in configuration file "%s".\n' \
-            "${dropin_filename}" \
-            1>&2
-        exit 2
-    fi
-done
+            'Info: Installing the "%s" sudoers drop-in file...\n' \
+            "${filename}"
+
+        # sudo will not accept filename with the period symbol in the
+        # filename, strip the convenicence filename suffix
+        filename_without_suffix="${filename%.sudoers}"
+
+        installed_file="${sudoers_dropin_dir_system}/${filename_without_suffix}"
+        install_opts=(
+            --owner=root
+            --group=root
+            --mode=0644
+            --verbose
+        )
+        if ! \
+            install \
+                "${install_opts[@]}" \
+                "${file}" \
+                "${installed_file}"; then
+            printf \
+                'Error: Unable to install the sudoers drop-in configuration file "%s".\n' \
+                "${filename}" \
+                1>&2
+            exit 2
+        fi
+    done
+fi
 
 printf \
     'Info: Operation completed without errors.\n'

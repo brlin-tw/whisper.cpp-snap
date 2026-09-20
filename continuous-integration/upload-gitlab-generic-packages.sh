@@ -1,14 +1,19 @@
 #!/usr/bin/env sh
 # Upload release packages as GitLab generic packages
 #
-# Copyright 2023 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# Copyright 2024 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 set \
     -o errexit \
     -o nounset
 
-if ! test CI_PROJECT_ID; then
+if ! test -n "${CI_COMMIT_TAG+x}" \
+    || ! test -n "${CI_PROJECT_ID+x}" \
+    || ! test -n "${CI_PROJECT_NAME+x}" \
+    || ! test -n "${CI_PROJECT_TITLE+x}" \
+    || ! test -n "${CI_API_V4_URL+x}" \
+    || ! test -n "${CI_JOB_TOKEN+x}"; then
     printf \
         'Error: This program should be run under a GitLab CI environment.\n' \
         1>&2
@@ -39,6 +44,7 @@ for file in "${project_dir}/${CI_PROJECT_NAME}-"*; do
 
     if ! \
         curl \
+            --fail \
             --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
             --upload-file "${file}" \
             "${package_registry_url}"; then

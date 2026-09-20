@@ -5,14 +5,14 @@
 # This file is based on The Common Pre-commit Framework Configuration Template
 # https://github.com/Lin-Buo-Ren/common-precommit-config-template
 #
-# Copyright 2021 林博仁(Buo-ren, Lin) <Buo.Ren.Lin@gmail.com>
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: CC-BY-SA-4.0
 
 repos:
   # Some out-of-the-box hooks for pre-commit
   # https://github.com/pre-commit/pre-commit-hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -29,13 +29,20 @@ repos:
       - id: fix-byte-order-marker
       - id: mixed-line-ending
       - id: trailing-whitespace
+        exclude: |
+          (?ix)^(
+            LICENSES/.*
+
+            # Trailing whitespace exists for lines that aren't changed in the context
+            |.*\.patch
+          )$
         args:
           - --markdown-linebreak-ext=md
 
   # Check Markdown documents with Markdownlint(Node.js variant)
   # https://github.com/DavidAnson/markdownlint
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.23.2
+    rev: v0.34.0
     hooks:
       - id: markdownlint
 

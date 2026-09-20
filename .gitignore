@@ -39,8 +39,14 @@
 # https://reuse.software/
 !.reuse/
 
+# Do track AI Agents configuration files
+!.agents/
+
 # Do track GitLab CI configuration file
 !/.gitlab-ci.yml
+
+# Do track ShellCheck configuration file
+!/.shellcheckrc
 
 # Don't track common backup filename extensions
 *~
@@ -62,7 +68,6 @@
 *.bmp
 *.jpg
 *.png
-!/snap/gui/*.png
 
 # Don't track common export formats from Markdown
 *.doc?
@@ -90,6 +95,9 @@
 
 # Don't track continuous integration virtual environments
 /continuous-integration/venv/
+
+# Don't track unpacked product files
+/whisper.cpp-snap-*/
 
 # Don't track runtime-generated Python cache files
 __pycache__
