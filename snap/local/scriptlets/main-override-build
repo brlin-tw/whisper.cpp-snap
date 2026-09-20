@@ -1,9 +1,59 @@
 #!/usr/bin/env bash
 # Customize the build step of the main part
 #
-# Copyright 2025 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+# Copyright 2026 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
 # SPDX-License-Identifier: MIT
 set -eu
+
+printf \
+    'Info: Applying backported upstream patch for 32-bit Vulkan compatibility...\n'
+project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR:-}"}"
+if test -z "${project_dir}"; then
+    printf \
+        'Error: CRAFT_PROJECT_DIR is not set.\n' \
+        1>&2
+    exit 2
+fi
+part_src="${CRAFT_PART_SRC:-"${SNAPCRAFT_PART_SRC:-}"}"
+if test -z "${part_src}"; then
+    printf \
+        'Error: CRAFT_PART_SRC is not set.\n' \
+        1>&2
+    exit 2
+fi
+
+patch_file="${project_dir}/snap/local/patches/0001-Fix-Vulkan-Hpp-handle-usage-on-32-bit-targets.patch"
+if ! test -f "${patch_file}"; then
+    printf \
+        'Error: Patch file "%s" does not exist.\n' \
+        "${patch_file}" \
+        1>&2
+    exit 2
+fi
+
+if git -C "${part_src}" apply --check --reverse "${patch_file}" >/dev/null 2>&1; then
+    printf \
+        'Info: Patch "%s" is already applied upstream.\n' \
+        "${patch_file##*/}"
+elif git -C "${part_src}" apply --check "${patch_file}" >/dev/null 2>&1; then
+    printf \
+        'Info: Applying patch "%s"...\n' \
+        "${patch_file##*/}"
+    if ! git -C "${part_src}" apply "${patch_file}"; then
+        printf \
+            'Error: Failed to apply patch "%s".\n' \
+            "${patch_file##*/}" \
+            1>&2
+        exit 2
+    fi
+else
+    printf \
+        'Error: Patch "%s" cannot be applied to "%s".\n' \
+        "${patch_file##*/}" \
+        "${part_src}" \
+        1>&2
+    exit 2
+fi
 
 if ! craftctl default; then
     printf \
