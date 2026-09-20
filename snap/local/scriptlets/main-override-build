@@ -6,7 +6,7 @@
 set -eu
 
 printf \
-    'Info: Applying backported upstream patch for 32-bit Vulkan compatibility...\n'
+    'Info: Applying patches to the source tree...\n'
 project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR:-}"}"
 if test -z "${project_dir}"; then
     printf \
@@ -22,37 +22,48 @@ if test -z "${part_src}"; then
     exit 2
 fi
 
-patch_file="${project_dir}/snap/local/patches/0001-Fix-Vulkan-Hpp-handle-usage-on-32-bit-targets.patch"
-if ! test -f "${patch_file}"; then
+patch_dir="${project_dir}/snap/local/patches"
+if ! test -d "${patch_dir}"; then
     printf \
-        'Error: Patch file "%s" does not exist.\n' \
-        "${patch_file}" \
+        'Error: Patch directory "%s" does not exist.\n' \
+        "${patch_dir}" \
         1>&2
     exit 2
 fi
 
-if git -C "${part_src}" apply --check --reverse "${patch_file}" >/dev/null 2>&1; then
+shopt -s nullglob
+patch_files=("${patch_dir}"/*.patch)
+shopt -u nullglob
+
+if test "${#patch_files[@]}" -eq 0; then
     printf \
-        'Info: Patch "%s" is already applied upstream.\n' \
-        "${patch_file##*/}"
-elif git -C "${part_src}" apply --check "${patch_file}" >/dev/null 2>&1; then
-    printf \
-        'Info: Applying patch "%s"...\n' \
-        "${patch_file##*/}"
-    if ! git -C "${part_src}" apply "${patch_file}"; then
-        printf \
-            'Error: Failed to apply patch "%s".\n' \
-            "${patch_file##*/}" \
-            1>&2
-        exit 2
-    fi
+        'Info: No patches to apply.\n'
 else
-    printf \
-        'Error: Patch "%s" cannot be applied to "%s".\n' \
-        "${patch_file##*/}" \
-        "${part_src}" \
-        1>&2
-    exit 2
+    for patch_file in "${patch_files[@]}"; do
+        if git -C "${part_src}" apply --check --reverse "${patch_file}" >/dev/null 2>&1; then
+            printf \
+                'Info: Patch "%s" is already applied upstream.\n' \
+                "${patch_file##*/}"
+        elif git -C "${part_src}" apply --check "${patch_file}" >/dev/null 2>&1; then
+            printf \
+                'Info: Applying patch "%s"...\n' \
+                "${patch_file##*/}"
+            if ! git -C "${part_src}" apply "${patch_file}"; then
+                printf \
+                    'Error: Failed to apply patch "%s".\n' \
+                    "${patch_file##*/}" \
+                    1>&2
+                exit 2
+            fi
+        else
+            printf \
+                'Error: Patch "%s" cannot be applied to "%s".\n' \
+                "${patch_file##*/}" \
+                "${part_src}" \
+                1>&2
+            exit 2
+        fi
+    done
 fi
 
 if ! craftctl default; then
