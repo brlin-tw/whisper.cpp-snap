@@ -120,4 +120,5 @@ __pycache__
 squashfs-root
 
 # Don't track snapcraft remote-build logs
+/buildlog_*.txt
 /snapcraft-*.txt
