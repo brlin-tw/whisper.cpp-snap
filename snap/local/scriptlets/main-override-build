@@ -6,6 +6,16 @@
 set -eu
 
 printf \
+    'DEBUG: Current memory usage:\n' \
+    1>&2
+if ! free --human 1>&2; then
+    printf \
+        'Error: Unable to retrieve current memory usage.\n' \
+        1>&2
+    exit 2
+fi
+
+printf \
     'Info: Applying patches to the source tree...\n'
 project_dir="${CRAFT_PROJECT_DIR:-"${SNAPCRAFT_PROJECT_DIR:-}"}"
 if test -z "${project_dir}"; then
