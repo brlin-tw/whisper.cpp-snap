@@ -5,6 +5,13 @@ name: whisper-cpp
 title: whisper.cpp (UNOFFICIAL)
 summary: Port of OpenAI's Whisper model in C/C++
 description: |-
+  High-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model.
+
+  Refer to the upstream project website for more info about this application:
+
+      ggerganov/whisper.cpp: Port of OpenAI's Whisper model in C/C++
+      https://github.com/ggerganov/whisper.cpp
+
   **Distribution-specific information**
 
   This is NOT an official distribution of whisper.cpp, please file any issue
@@ -12,11 +19,6 @@ description: |-
 
       Issues · 林博仁 Buo-ren Lin / Unofficial snap packaging for whisper.cpp · GitLab
       https://gitlab.com/brlin/whisper.cpp-snap/-/issues
-
-  Refer to the upstream project website for more info about this application:
-
-      ggerganov/whisper.cpp: Port of OpenAI's Whisper model in C/C++
-      https://github.com/ggerganov/whisper.cpp
 
   The following commands are provided by this snap:
 
@@ -31,22 +33,6 @@ description: |-
   This snap only supports Vulkan-based GPU inference at the moment.  As
   for CPU inference, this snap is currently built against the x86_64
   baseline ABI on the amd64 architecture, which is very slow.
-
-  **Upstream information(some features are not applicable to snap)**
-
-  High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
-
-  * Plain C/C++ implementation without dependencies
-  * Apple Silicon first-class citizen - optimized via ARM NEON, Accelerate framework, Metal and [Core ML](https://github.com/ggerganov/whisper.cpp#core-ml-support)
-  * AVX intrinsics support for x86 architectures
-  * VSX intrinsics support for POWER architectures
-  * Mixed F16 / F32 precision
-  * [4-bit and 5-bit integer quantization support](https://github.com/ggerganov/whisper.cpp#quantization)
-  * Zero memory allocations at runtime
-  * Support for CPU-only inference
-  * [Efficient GPU support for NVIDIA](https://github.com/ggerganov/whisper.cpp#nvidia-gpu-support-via-cublas)
-  * [OpenVINO Support](https://github.com/ggerganov/whisper.cpp#openvino-support)
-  * [C-style API](https://github.com/ggerganov/whisper.cpp/blob/master/whisper.h)
 icon: snap/gui/placeholder-icon.png
 license: MIT
 contact: https://gitlab.com/brlin/whisper.cpp-snap/-/issues
