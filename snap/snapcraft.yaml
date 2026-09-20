@@ -73,6 +73,13 @@ parts:
       - -DGGML_F16C=OFF
       - -DGGML_FMA=OFF
 
+      # Disable non-baseline RISC-V extensions for compatibility across
+      # standard riscv64 systems and to avoid invalid -march strings in GCC
+      - -DGGML_RVV=OFF
+      - -DGGML_RV_ZFH=OFF
+      - -DGGML_RV_ZVFH=OFF
+      - -DGGML_RV_ZICBOP=OFF
+
       # Support GPU acceleration via the Vulkan API
       - -DGGML_VULKAN=ON
 
