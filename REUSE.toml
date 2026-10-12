@@ -18,3 +18,9 @@ path = "snap/gui/placeholder-icon.png"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2018 Canonical, Ltd. <https://ubuntu.com/legal/trademarks>"
 SPDX-License-Identifier = "LicenseRef-Canonical-Intellectual-Property-Rights-Policy"
+
+[[annotations]]
+path = "snap/local/patches/0001-Fix-Vulkan-vk-Buffer-streaming-on-32-bit-targets.patch"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 miyan <1138989048@qq.com>"
+SPDX-License-Identifier = "MIT"

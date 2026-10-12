@@ -1,0 +1,63 @@
+From: 林博仁(Buo-ren Lin) <buo.ren.lin@gmail.com>
+Date: Mon, 12 Oct 2026 23:40:00 +0800
+Subject: [PATCH] Fix Vulkan vk::Buffer streaming on 32-bit targets
+
+On 32-bit platforms, Vulkan non-dispatchable handles such as VkBuffer are
+represented as uint64_t, and Vulkan-Hpp disables implicit conversions
+for type safety.
+
+Upstream commit 69fcec3bf11e54825edda9ea2c11e33f5cb9652c added an
+operator<< overload for vk::Buffer in an anonymous namespace inside
+ggml-vulkan.cpp. However, when ggml-vulkan was modularized in commit
+fbdbbc7847e030166531e3b3edf30faac2e693a4 ("vulkan: split buffers and
+debug code into separate files, add shared headers"), memory logging
+calls using VK_LOG_MEMORY were moved to ggml-vulkan-debug.cpp, which
+does not see the operator<< defined in ggml-vulkan.cpp.
+
+Move the operator<< overload into ggml-vulkan-types.h so that all
+translation units including ggml-vulkan-debug.cpp can stream vk::Buffer
+handles properly.
+
+Bug: https://github.com/ggml-org/whisper.cpp/issues/4036
+Forwarded: not-needed
+---
+ ggml/src/ggml-vulkan/ggml-vulkan-types.h | 8 ++++++++
+ ggml/src/ggml-vulkan/ggml-vulkan.cpp       | 5 -----
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/ggml/src/ggml-vulkan/ggml-vulkan-types.h b/ggml/src/ggml-vulkan/ggml-vulkan-types.h
+index 4158ff77..aef6a0e4 100644
+--- a/ggml/src/ggml-vulkan/ggml-vulkan-types.h
++++ b/ggml/src/ggml-vulkan/ggml-vulkan-types.h
+@@ -25,6 +25,14 @@ DispatchLoaderDynamic & ggml_vk_default_dispatcher();
+ 
+ #include <vulkan/vulkan.hpp>
+ 
++// On 32-bit platforms, Vulkan non-dispatchable handles such as VkBuffer are represented as uint64_t,
++// and Vulkan-Hpp disables implicit conversions for type safety.
++namespace {
++inline std::ostream & operator<<(std::ostream & os, vk::Buffer buffer) {
++    return os << static_cast<VkBuffer>(buffer);
++}
++}
++
+ #ifndef VK_NV_cooperative_matrix_decode_vector
+ #define VK_NV_cooperative_matrix_decode_vector 1
+ #define VK_NV_COOPERATIVE_MATRIX_DECODE_VECTOR_EXTENSION_NAME "VK_NV_cooperative_matrix_decode_vector"
+diff --git a/ggml/src/ggml-vulkan/ggml-vulkan.cpp b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
+index 5587dfc2..cdf3b445 100644
+--- a/ggml/src/ggml-vulkan/ggml-vulkan.cpp
++++ b/ggml/src/ggml-vulkan/ggml-vulkan.cpp
+@@ -1,10 +1,5 @@
+ #include "ggml-vulkan-common.h"
+ 
+-namespace {
+-inline std::ostream & operator<<(std::ostream & os, vk::Buffer buffer) {
+-    return os << static_cast<VkBuffer>(buffer);
+-}
+-}
+ static vk_device_architecture get_device_architecture(const vk::PhysicalDevice& device) {
+     vk::PhysicalDeviceProperties props = device.getProperties();
+ 
+-- 
+2.43.0
